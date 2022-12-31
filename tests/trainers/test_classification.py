@@ -11,6 +11,7 @@ from omegaconf import OmegaConf
 from pytorch_lightning import LightningDataModule, Trainer
 from torch.nn.modules import Module
 
+from torchgeo.datasets import BigEarthNet, EuroSAT
 from torchgeo.datamodules import (
     BigEarthNetDataModule,
     EuroSATDataModule,
@@ -127,7 +128,7 @@ class TestClassificationTask:
     def test_missing_attributes(
         self, model_kwargs: Dict[Any, Any], monkeypatch: MonkeyPatch
     ) -> None:
-        monkeypatch.delattr(EuroSATDataModule, "plot")
+        monkeypatch.delattr(EuroSAT, "plot")
         datamodule = EuroSATDataModule(
             root="tests/data/eurosat", batch_size=1, num_workers=0
         )
@@ -205,7 +206,7 @@ class TestMultiLabelClassificationTask:
     def test_missing_attributes(
         self, model_kwargs: Dict[Any, Any], monkeypatch: MonkeyPatch
     ) -> None:
-        monkeypatch.delattr(BigEarthNetDataModule, "plot")
+        monkeypatch.delattr(BigEarthNet, "plot")
         datamodule = BigEarthNetDataModule(
             root="tests/data/bigearthnet", batch_size=1, num_workers=0
         )
