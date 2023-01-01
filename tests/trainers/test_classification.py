@@ -11,7 +11,6 @@ from omegaconf import OmegaConf
 from pytorch_lightning import LightningDataModule, Trainer
 from torch.nn.modules import Module
 
-from torchgeo.datasets import BigEarthNet, EuroSAT
 from torchgeo.datamodules import (
     BigEarthNetDataModule,
     EuroSATDataModule,
@@ -19,6 +18,7 @@ from torchgeo.datamodules import (
     So2SatDataModule,
     UCMercedDataModule,
 )
+from torchgeo.datasets import BigEarthNet, EuroSAT
 from torchgeo.trainers import ClassificationTask, MultiLabelClassificationTask
 
 from .test_utils import ClassificationTestModel
