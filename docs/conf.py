@@ -62,7 +62,7 @@ nitpick_ignore = [
     ("py:class", "LightningDataModule"),
     ("py:class", "pytorch_lightning.core.module.LightningModule"),
     # Undocumented class
-    ("py:class", "pytorch_lightning.utilities.exceptions.MisconfigurationException"),
+    ("py:exc", "pytorch_lightning.utilities.exceptions.MisconfigurationException"),
     ("py:class", "torchvision.models.resnet.ResNet"),
     ("py:class", "segmentation_models_pytorch.base.model.SegmentationModel"),
 ]
