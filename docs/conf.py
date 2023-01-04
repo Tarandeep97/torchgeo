@@ -62,6 +62,7 @@ nitpick_ignore = [
     ("py:class", "LightningDataModule"),
     ("py:class", "pytorch_lightning.core.module.LightningModule"),
     # Undocumented class
+    ("py:class", "kornia.augmentation._2d.intensity.base.IntensityAugmentationBase2D"),
     ("py:class", "torchvision.models.resnet.ResNet"),
     ("py:class", "segmentation_models_pytorch.base.model.SegmentationModel"),
 ]
