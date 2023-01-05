@@ -14,9 +14,15 @@ from pytorch_lightning.utilities.exceptions import (  # type: ignore[attr-define
 )
 
 from torchgeo.datamodules import COWCCountingDataModule, TropicalCycloneDataModule
+from torchgeo.datasets import TropicalCyclone
 from torchgeo.trainers import RegressionTask
 
 from .test_utils import RegressionTestModel
+
+
+class CustomRegressionDataModule(TropicalCycloneDataModule):
+    def setup(self, stage: str) -> None:
+        self.predict_dataset = TropicalCyclone(split="test", **self.kwargs)
 
 
 class TestRegressionTask:
@@ -107,3 +113,11 @@ class TestRegressionTask:
         match = "Weight type 'invalid_weights' is not valid."
         with pytest.raises(ValueError, match=match):
             RegressionTask(**model_kwargs)
+
+    def test_predict(self, model_kwargs: Dict[Any, Any]) -> None:
+        datamodule = CustomRegressionDataModule(
+            root="tests/data/cyclone", batch_size=1, num_workers=0
+        )
+        model = RegressionTask(**model_kwargs)
+        trainer = Trainer(fast_dev_run=True, log_every_n_steps=1, max_epochs=1)
+        trainer.predict(model=model, datamodule=datamodule)

@@ -16,10 +16,22 @@ from pytorch_lightning.utilities.exceptions import (  # type: ignore[attr-define
 from torchvision.models import resnet18
 
 from torchgeo.datamodules import ChesapeakeCVPRDataModule
+from torchgeo.datasets import ChesapeakeCVPR
+from torchgeo.samplers import GridGeoSampler
 from torchgeo.trainers import BYOLTask
 from torchgeo.trainers.byol import BYOL, SimCLRAugmentation
 
 from .test_utils import SegmentationTestModel
+
+
+class CustomBYOLDataModule(ChesapeakeCVPRDataModule):
+    def setup(self, stage: str) -> None:
+        self.predict_dataset = ChesapeakeCVPR(
+            splits=self.test_splits, layers=self.layers, **self.kwargs
+        )
+        self.predict_sampler = GridGeoSampler(
+            self.predict_dataset, self.original_patch_size, self.original_patch_size
+        )
 
 
 class TestBYOL:
@@ -102,3 +114,18 @@ class TestBYOLTask:
         match = "Weight type 'invalid_weights' is not valid."
         with pytest.raises(ValueError, match=match):
             BYOLTask(**model_kwargs)
+
+    def test_predict(self, model_kwargs: Dict[Any, Any]) -> None:
+        datamodule = CustomBYOLDataModule(
+            root="tests/data/chesapeake/cvpr",
+            train_splits=["de-test"],
+            val_splits=["de-test"],
+            test_splits=["de-test"],
+            batch_size=1,
+            patch_size=64,
+            num_workers=0,
+        )
+        model_kwargs["in_channels"] = 4
+        model = BYOLTask(**model_kwargs)
+        trainer = Trainer(fast_dev_run=True, log_every_n_steps=1, max_epochs=1)
+        trainer.predict(model=model, datamodule=datamodule)
