@@ -8,12 +8,12 @@ import pytest
 from omegaconf import OmegaConf
 from pytorch_lightning import LightningDataModule, Trainer
 
-from torchgeo.datamodules import (
-    COWCCountingDataModule,
-    GeoDataModule,
-    NonGeoDataModule,
-    TropicalCycloneDataModule,
+# TODO: import from lightning_lite instead
+from pytorch_lightning.utilities.exceptions import (  # type: ignore[attr-defined]
+    MisconfigurationException,
 )
+
+from torchgeo.datamodules import COWCCountingDataModule, TropicalCycloneDataModule
 from torchgeo.trainers import RegressionTask
 
 from .test_utils import RegressionTestModel
@@ -45,17 +45,14 @@ class TestRegressionTask:
         # Instantiate trainer
         trainer = Trainer(fast_dev_run=True, log_every_n_steps=1, max_epochs=1)
         trainer.fit(model=model, datamodule=datamodule)
-
-        if isinstance(datamodule, GeoDataModule):
-            if datamodule.test_dataset or datamodule.test_sampler:
-                trainer.test(model=model, datamodule=datamodule)
-            if datamodule.predict_dataset or datamodule.predict_sampler:
-                trainer.predict(model=model, datamodule=datamodule)
-        elif isinstance(datamodule, NonGeoDataModule):
-            if datamodule.test_dataset or datamodule.dataset:
-                trainer.test(model=model, datamodule=datamodule)
-            if datamodule.predict_dataset or datamodule.dataset:
-                trainer.predict(model=model, datamodule=datamodule)
+        try:
+            trainer.test(model=model, datamodule=datamodule)
+        except MisconfigurationException:
+            pass
+        try:
+            trainer.predict(model=model, datamodule=datamodule)
+        except MisconfigurationException:
+            pass
 
     def test_no_logger(self) -> None:
         conf = OmegaConf.load(os.path.join("tests", "conf", "cyclone.yaml"))
